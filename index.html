@@ -6,10 +6,10 @@
     <meta name="theme-color" content="#111318" />
     <meta
       name="description"
-      content="Generate validated Equinox employee business cards in your browser."
+      content="Generate validated Equinox employee business cards and ID cards in your browser."
     />
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
-    <title>Equinox Business Card Generator</title>
+    <title>Equinox Card Generator</title>
   </head>
   <body>
     <main class="workspace">
@@ -17,12 +17,17 @@
         <div class="brand-mark" aria-hidden="true">E</div>
         <div>
           <p class="eyebrow">Equinox Solutions</p>
-          <h1>Business card generator</h1>
+          <h1>Employee card generator</h1>
         </div>
         <p class="privacy-note"><span></span>Runs privately in this browser</p>
       </header>
 
-      <section class="workbench" aria-label="Business card generator">
+      <nav class="product-tabs" aria-label="Card type">
+        <button class="product-tab" type="button" data-view="business" aria-selected="true">Business card</button>
+        <button class="product-tab" type="button" data-view="id" aria-selected="false">ID card</button>
+      </nav>
+
+      <section class="workbench" data-workbench="business" aria-label="Business card generator">
         <form class="editor" id="employee-form" novalidate>
           <div class="section-heading">
             <p class="step">Employee details</p>
@@ -76,6 +81,63 @@
             </article>
           </div>
           <p class="preview-footnote">The downloaded PDF includes 3 mm bleed and an embedded TrimBox.</p>
+        </section>
+      </section>
+
+      <section class="workbench" data-workbench="id" aria-label="ID card generator" hidden>
+        <form class="editor" id="id-form" novalidate>
+          <div class="section-heading">
+            <p class="step">Employee ID details</p>
+            <p>The photo and details stay on this device and are never uploaded.</p>
+          </div>
+
+          <label class="photo-picker">Employee photo<input name="photo" type="file" accept="image/jpeg,image/png,image/webp" required /><small>Use a clear, front-facing portrait. It will be centre-cropped and converted to grayscale.</small></label>
+          <div class="name-grid">
+            <label>First name<input name="firstName" value="John" autocomplete="given-name" required /></label>
+            <label>Last name<input name="lastName" value="Smith" autocomplete="family-name" required /></label>
+          </div>
+          <label>Title<input name="jobTitle" value="Director" autocomplete="organization-title" required /></label>
+          <div class="name-grid">
+            <label>Employee ID<input name="employeeId" value="1001" required /></label>
+            <label>Blood group<select name="bloodGroup" required><option>O+</option><option>O-</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option></select></label>
+          </div>
+          <label>Phone number<input name="mobile" value="+91-90000-00000" type="tel" autocomplete="tel" required /></label>
+          <label>Emergency contact<input name="emergencyContact" value="+91-90000-00001" type="tel" required /></label>
+          <label>Date of birth<input name="dateOfBirth" value="1990-01-01" type="date" required /></label>
+
+          <div class="form-status" id="id-form-status" role="status" aria-live="polite">Choose an employee photo to continue.</div>
+          <button class="primary-button" id="id-generate-button" type="submit" disabled>Generate ID print files</button>
+          <div class="downloads" id="id-downloads" hidden>
+            <a class="download-all" id="id-download-all" href="#">Download complete package</a>
+            <div class="download-grid">
+              <a id="id-download-pdf" href="#">Print PDF</a>
+              <a id="id-download-photo" href="#">Processed photo</a>
+            </div>
+          </div>
+        </form>
+
+        <section class="preview-panel" aria-labelledby="id-preview-title">
+          <div class="preview-header">
+            <div><p class="step">Live preview</p><h2 id="id-preview-title">Front</h2></div>
+            <p>54 × 85 mm</p>
+          </div>
+          <div class="card-stage id-stage">
+            <article class="id-card" aria-label="ID card preview">
+              <img class="id-static-art" src="./assets/id-static-template-preview.png" alt="" />
+              <div class="id-photo" id="id-photo-preview"><span>PHOTO</span></div>
+              <img class="id-logo-overlay" src="./assets/id-top-logo-preview.png" alt="" />
+              <strong class="id-name" id="id-preview-name">John Smith</strong>
+              <span class="id-title" id="id-preview-title-text">Director</span>
+              <div class="id-details">
+                <span id="id-preview-employee">Employee ID: 1001</span>
+                <span id="id-preview-phone">Phone:+91-90000-00000</span>
+                <span id="id-preview-blood">Blood Group: O+</span>
+                <span id="id-preview-emergency">Emergency Contact: +91-90000-00001</span>
+                <span id="id-preview-dob">DOB: 01-Jan-1990</span>
+              </div>
+            </article>
+          </div>
+          <p class="preview-footnote">One-sided, print-ready 54 × 85 mm PDF matching the supplied reference.</p>
         </section>
       </section>
     </main>

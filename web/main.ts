@@ -1,7 +1,8 @@
 import { normalizeEmployee, type EmployeeInput } from "../src/employee.js";
+import { normalizeIdCardEmployee, type IdCardInput } from "../src/id-card.js";
 import { generateQrSvg } from "../src/qr-core.js";
 import { generateVCard } from "../src/vcard.js";
-import { generateBrowserArtifacts, loadProductionAssets, type BrowserArtifacts } from "./generator.js";
+import { generateBrowserArtifacts, generateBrowserIdArtifacts, loadProductionAssets, type BrowserArtifacts, type BrowserIdArtifacts } from "./generator.js";
 import "./styles.css";
 
 type DownloadKey = "pdf" | "vcf" | "qr" | "cardSvg" | "zip";
@@ -35,6 +36,7 @@ const links: Record<DownloadKey, HTMLAnchorElement> = {
 const downloadUrls = new Set<string>();
 let qrUrl: string | undefined;
 let assetsReady = false;
+let idPhotoPreviewUrl: string | undefined;
 
 function readInput(): EmployeeInput {
   return {
@@ -177,12 +179,138 @@ void loadProductionAssets()
   .then(() => {
     assetsReady = true;
     updatePreview();
+    updateIdPreview(false);
   })
   .catch((error: unknown) => {
     setStatus(error instanceof Error ? error.message : "Could not load production assets", "error");
   });
 
+const tabs = document.querySelectorAll<HTMLButtonElement>(".product-tab");
+const workbenches = document.querySelectorAll<HTMLElement>("[data-workbench]");
+for (const tab of tabs) {
+  tab.addEventListener("click", () => {
+    const view = tab.dataset.view;
+    tabs.forEach((item) => item.setAttribute("aria-selected", String(item === tab)));
+    workbenches.forEach((item) => { item.hidden = item.dataset.workbench !== view; });
+  });
+}
+
+type IdDownloadKey = "pdf" | "photo" | "zip";
+const idForm = requireElement<HTMLFormElement>("#id-form");
+const idGenerateButton = requireElement<HTMLButtonElement>("#id-generate-button");
+const idStatus = requireElement<HTMLElement>("#id-form-status");
+const idDownloads = requireElement<HTMLElement>("#id-downloads");
+const idPhotoInput = idForm.elements.namedItem("photo") as HTMLInputElement;
+const idField = (name: keyof IdCardInput) => idForm.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement;
+const idPhotoPreview = requireElement<HTMLElement>("#id-photo-preview");
+const idPreview = {
+  name: requireElement<HTMLElement>("#id-preview-name"),
+  title: requireElement<HTMLElement>("#id-preview-title-text"),
+  employee: requireElement<HTMLElement>("#id-preview-employee"),
+  phone: requireElement<HTMLElement>("#id-preview-phone"),
+  blood: requireElement<HTMLElement>("#id-preview-blood"),
+  emergency: requireElement<HTMLElement>("#id-preview-emergency"),
+  dob: requireElement<HTMLElement>("#id-preview-dob"),
+};
+const idLinks: Record<IdDownloadKey, HTMLAnchorElement> = {
+  pdf: requireElement<HTMLAnchorElement>("#id-download-pdf"),
+  photo: requireElement<HTMLAnchorElement>("#id-download-photo"),
+  zip: requireElement<HTMLAnchorElement>("#id-download-all"),
+};
+
+function readIdInput(): IdCardInput {
+  return {
+    firstName: idField("firstName").value,
+    lastName: idField("lastName").value,
+    jobTitle: idField("jobTitle").value,
+    employeeId: idField("employeeId").value,
+    mobile: idField("mobile").value,
+    bloodGroup: idField("bloodGroup").value as IdCardInput["bloodGroup"],
+    emergencyContact: idField("emergencyContact").value,
+    dateOfBirth: idField("dateOfBirth").value,
+  };
+}
+
+function setIdStatus(message: string, tone: "neutral" | "success" | "error" = "neutral"): void {
+  idStatus.textContent = message;
+  idStatus.dataset.tone = tone;
+}
+
+function friendlyDob(value: string): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/u.exec(value);
+  if (!match) return "Date of birth";
+  const date = new Date(`${value}T00:00:00Z`);
+  return new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "short", year: "numeric", timeZone: "UTC" }).format(date).replace(/ /gu, "-");
+}
+
+function updateIdPreview(announce = true): void {
+  const input = readIdInput();
+  idPreview.name.textContent = `${input.firstName} ${input.lastName}`.trim() || "Employee name";
+  idPreview.title.textContent = input.jobTitle || "Title";
+  idPreview.employee.textContent = `Employee ID: ${input.employeeId || "—"}`;
+  idPreview.phone.textContent = `Phone:${input.mobile || "—"}`;
+  idPreview.blood.textContent = `Blood Group: ${input.bloodGroup || "—"}`;
+  idPreview.emergency.textContent = `Emergency Contact: ${input.emergencyContact || "—"}`;
+  idPreview.dob.textContent = `DOB: ${friendlyDob(input.dateOfBirth)}`;
+
+  const photo = idPhotoInput.files?.[0];
+  if (idPhotoPreviewUrl) URL.revokeObjectURL(idPhotoPreviewUrl);
+  idPhotoPreviewUrl = photo ? URL.createObjectURL(photo) : undefined;
+  idPhotoPreview.replaceChildren(photo
+    ? Object.assign(document.createElement("img"), { src: idPhotoPreviewUrl, alt: "Employee portrait preview" })
+    : Object.assign(document.createElement("span"), { textContent: "PHOTO" }));
+  try {
+    const employee = normalizeIdCardEmployee(input);
+    idPreview.phone.textContent = `Phone:${employee.displayMobile}`;
+    idPreview.emergency.textContent = `Emergency Contact: ${employee.displayEmergencyContact}`;
+    idPreview.dob.textContent = `DOB: ${employee.displayDateOfBirth}`;
+    if (!photo) throw new Error("Choose an employee photo to continue.");
+    idGenerateButton.disabled = !assetsReady;
+    if (assetsReady && announce) setIdStatus("Details and photo are valid. Ready to generate.");
+  } catch (error) {
+    idGenerateButton.disabled = true;
+    if (announce) setIdStatus(error instanceof Error ? error.message : "Complete all required ID fields.", "error");
+  }
+}
+
+function showIdDownloads(artifacts: BrowserIdArtifacts): void {
+  for (const key of Object.keys(idLinks) as IdDownloadKey[]) {
+    const file = artifacts.files[key];
+    const url = URL.createObjectURL(file.blob);
+    downloadUrls.add(url);
+    idLinks[key].href = url;
+    idLinks[key].download = file.name;
+  }
+  idDownloads.hidden = false;
+}
+
+async function createIdArtifacts(): Promise<void> {
+  const photo = idPhotoInput.files?.[0];
+  if (!photo) return setIdStatus("Choose an employee photo to continue.", "error");
+  idGenerateButton.disabled = true;
+  idGenerateButton.dataset.busy = "true";
+  idGenerateButton.textContent = "Generating…";
+  idDownloads.hidden = true;
+  setIdStatus("Building the ID print package in this browser…");
+  try {
+    const artifacts = await generateBrowserIdArtifacts(readIdInput(), photo);
+    showIdDownloads(artifacts);
+    setIdStatus(`ID package ready for ${artifacts.employee.fullName}.`, "success");
+  } catch (error) {
+    setIdStatus(error instanceof Error ? error.message : "Generation failed", "error");
+  } finally {
+    idGenerateButton.dataset.busy = "false";
+    idGenerateButton.textContent = "Generate ID print files";
+    updateIdPreview(false);
+  }
+}
+
+idForm.addEventListener("input", () => { idDownloads.hidden = true; updateIdPreview(); });
+idForm.addEventListener("submit", (event) => { event.preventDefault(); void createIdArtifacts(); });
+updateIdPreview(false);
+
 window.addEventListener("beforeunload", () => {
   clearDownloadUrls();
   if (qrUrl) URL.revokeObjectURL(qrUrl);
+  if (idPhotoPreviewUrl) URL.revokeObjectURL(idPhotoPreviewUrl);
 });

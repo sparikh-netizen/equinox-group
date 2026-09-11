@@ -1,10 +1,12 @@
-# Equinox business card generator
+# Equinox employee card generator
 
-Production-quality business cards generated directly from employee data. Illustrator is not required for everyday use or deployment.
+Production-quality business cards and employee ID cards generated directly from employee data. Illustrator is not required for everyday use or deployment.
 
 ## Browser app
 
-The hosted generator runs entirely in the browser: employee details are not uploaded to a server, and the PDF, VCF, QR SVG, complete-card SVG, and ZIP are created locally on the device.
+The hosted generator runs entirely in the browser. Business-card details and ID-card portraits are not uploaded to a server; all PDFs and ZIP packages are created locally on the device.
+
+Use the **Business card** and **ID card** tabs to switch products. The ID card workflow produces a one-sided 54 × 85 mm print PDF, converts the selected portrait to grayscale, and centre-crops it to the approved photo frame.
 
 For local development:
 
@@ -16,6 +18,8 @@ npm run web:dev
 Create a production build with `npm run web:build`. GitHub Actions publishes `dist-web/` to GitHub Pages after every successful push to `main`.
 
 The original approved artwork remains the visual source of truth. The generator preserves its static typography and positioning, removes the prior employee and QR data, then adds new employee text with embedded Manrope fonts and a new vector QR code containing the same canonical data.
+
+The separate ID template follows its supplied reference exactly: Manrope ExtraBold for the employee name, Manrope Regular for all remaining text, CMYK artwork and text, and the original 54 × 85 mm geometry. Its variable fields are photo, name, title, employee ID, phone, blood group, emergency contact, and date of birth.
 
 The QR stores a compact contact vCard containing only the employee's name, title, mobile number, and email. Static company details remain printed on the card instead of being duplicated inside the QR. This keeps the printed QR modules large enough for reliable scanning on the small card; generation stops if unusually long employee details would make them too dense.
 
@@ -81,7 +85,7 @@ Change company or design constants only through a reviewed code change. After an
 
 ## Architecture
 
-`template/static-template.pdf` is the sanitized, approved production source protected by a SHA-256 check. It contains only static company artwork—no previous employee text, personal metadata, Illustrator private data, or QR image.
+`template/static-template.pdf` and `template/id-static-template.pdf` are sanitized, approved production sources protected by SHA-256 checks. They contain only static company artwork—no previous employee text, portrait, personal metadata, Illustrator private data, or QR image.
 
 Normal production generation uses only Git checkout contents plus Node and Poppler. It does not depend on this laptop, Illustrator, or any Adobe service. The original `.ai` and employee PDF are deliberately excluded from Git because they contain historical personal data and are not runtime inputs. Your original ZIP remains the private provenance and emergency design-edit source; an `.ai` file is never created per employee.
 

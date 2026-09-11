@@ -2,7 +2,7 @@
   "name": "equinox-business-card-generator",
   "version": "1.0.0",
   "private": true,
-  "description": "Deterministic print-ready Equinox business card generator",
+  "description": "Deterministic print-ready Equinox business card and ID card generator",
   "type": "module",
   "engines": {
     "node": ">=22"
