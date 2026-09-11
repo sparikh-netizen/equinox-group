@@ -1,4 +1,4 @@
-import { COMPANY } from "./config.js";
+import { COMPANY } from "./design.js";
 import type { Employee } from "./employee.js";
 
 export function escapeVCardValue(value: string): string {

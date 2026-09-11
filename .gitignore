@@ -1,9 +1,11 @@
 node_modules/
 dist/
+dist-web/
 output/*
 !output/.gitkeep
 data/private/
 template/source/
 coverage/
 .DS_Store
+.sites-runtime/
 *.log

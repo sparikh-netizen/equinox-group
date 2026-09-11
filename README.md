@@ -2,6 +2,19 @@
 
 Production-quality business cards generated directly from employee data. Illustrator is not required for everyday use or deployment.
 
+## Browser app
+
+The hosted generator runs entirely in the browser: employee details are not uploaded to a server, and the PDF, VCF, QR SVG, complete-card SVG, and ZIP are created locally on the device.
+
+For local development:
+
+```bash
+npm ci
+npm run web:dev
+```
+
+Create a production build with `npm run web:build`. GitHub Actions publishes `dist-web/` to GitHub Pages after every successful push to `main`.
+
 The original approved artwork remains the visual source of truth. The generator preserves its static typography and positioning, removes the prior employee and QR data, then adds new employee text with embedded Manrope fonts and a new vector QR code containing the same canonical data.
 
 ## Generate a card
@@ -89,7 +102,7 @@ GitHub Actions runs type-checking, unit tests, a full 600 DPI integration prefli
 
 ## Deployment model
 
-The current repository is a deterministic generator and CI pipeline. It can run on any Linux or macOS machine with the listed requirements, including a hosted job or future internal web form. Production inputs can remain outside Git; only the template, fonts, code, and non-personal example are committed.
+The browser app is a static GitHub Pages site. It has no application server or database: production inputs stay inside the employee's browser, while Git contains only the sanitized template, fonts, code, and non-personal example. The command-line generator can also run on any Linux or macOS machine with the listed requirements.
 
 For each real employee:
 

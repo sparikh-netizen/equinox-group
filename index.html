@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#111318" />
+    <meta
+      name="description"
+      content="Generate validated Equinox employee business cards in your browser."
+    />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <title>Equinox Business Card Generator</title>
+  </head>
+  <body>
+    <main class="workspace">
+      <header class="masthead">
+        <div class="brand-mark" aria-hidden="true">E</div>
+        <div>
+          <p class="eyebrow">Equinox Solutions</p>
+          <h1>Business card generator</h1>
+        </div>
+        <p class="privacy-note"><span></span>Runs privately in this browser</p>
+      </header>
+
+      <section class="workbench" aria-label="Business card generator">
+        <form class="editor" id="employee-form" novalidate>
+          <div class="section-heading">
+            <p class="step">Employee details</p>
+            <p>Only these fields and the QR code will change.</p>
+          </div>
+
+          <div class="name-grid">
+            <label>First name<input name="firstName" value="John" autocomplete="given-name" required /></label>
+            <label>Last name<input name="lastName" value="Smith" autocomplete="family-name" required /></label>
+          </div>
+          <label>Title<input name="jobTitle" value="Director" autocomplete="organization-title" required /></label>
+          <label>Email<input name="email" value="john.smith@equinoxgroup.in" type="email" autocomplete="email" required /></label>
+          <label>Phone number<input name="mobile" value="+91-90000-00000" type="tel" autocomplete="tel" required /></label>
+
+          <div class="form-status" id="form-status" role="status" aria-live="polite">Ready to generate.</div>
+          <button class="primary-button" id="generate-button" type="submit" disabled>
+            Generate print files
+          </button>
+          <div class="downloads" id="downloads" hidden>
+            <a class="download-all" id="download-all" href="#">Download complete package</a>
+            <div class="download-grid">
+              <a id="download-pdf" href="#">Print PDF</a>
+              <a id="download-vcf" href="#">Contact VCF</a>
+              <a id="download-qr" href="#">QR SVG</a>
+              <a id="download-svg" href="#">Card SVG</a>
+            </div>
+          </div>
+        </form>
+
+        <section class="preview-panel" aria-labelledby="preview-title">
+          <div class="preview-header">
+            <div>
+              <p class="step">Live preview</p>
+              <h2 id="preview-title">Front</h2>
+            </div>
+            <p>88.9 × 50.8 mm</p>
+          </div>
+          <div class="card-stage">
+            <article class="business-card" aria-label="Business card preview">
+              <div class="employee-block">
+                <strong id="preview-name">John Smith</strong>
+                <span id="preview-title-text">Director</span>
+              </div>
+              <div class="contact-block">
+                <span id="preview-email">john.smith@equinoxgroup.in</span>
+                <span id="preview-phone">+91-90000-00000</span>
+              </div>
+              <div class="company-block"><strong>EQUINOX SOLUTIONS</strong> PVT. LTD.<small>www.equinoxgroup.in</small></div>
+              <address>101-103, North Tower, ONE42,<br />B/h Ashok Vatika,<br />Ambli Bopal Road, Bodakdev,<br />Ahmedabad, 380054, India<br />+91-79-6920-8000</address>
+              <div class="qr-placeholder" id="qr-preview" aria-label="Employee QR preview"><span>QR</span></div>
+            </article>
+          </div>
+          <p class="preview-footnote">The downloaded PDF includes 3 mm bleed and an embedded TrimBox.</p>
+        </section>
+      </section>
+    </main>
+    <script type="module" src="/web/main.ts"></script>
+  </body>
+</html>
