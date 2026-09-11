@@ -4,7 +4,7 @@ import QRCode from "qrcode";
 import { DESIGN } from "./design.js";
 import { createQrMatrix } from "./qr-core.js";
 
-export { createQrMatrix, generateQrSvg, qrPathForSvg } from "./qr-core.js";
+export { createQrMatrix, generateQrSvg, getQrPrintMetrics, qrPathForSvg } from "./qr-core.js";
 
 const decodeQr = jsQR as unknown as (
   data: Uint8ClampedArray,

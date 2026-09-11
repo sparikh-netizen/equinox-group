@@ -113,7 +113,13 @@ export async function generateBrowserArtifacts(input: EmployeeInput): Promise<Br
       trimBoxPoints: PAGE.trimBox,
     },
     textFit: { passed: true, fields: pdf.result.textFit },
-    qr: { passed: true, modules: pdf.result.qrModules, source: "canonical vCard" },
+    qr: {
+      passed: true,
+      modules: pdf.result.qrModules,
+      moduleSizeMm: pdf.result.qrModuleSizeMm,
+      dotsAt300Dpi: pdf.result.qrDotsAt300Dpi,
+      source: "compact contact vCard",
+    },
     assetIntegrity: { passed: true },
   };
   const reportBlob = textBlob(`${JSON.stringify(report, null, 2)}\n`, "application/json");

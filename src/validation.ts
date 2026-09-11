@@ -37,7 +37,13 @@ export interface ValidationReport {
   };
   employeeData: Check & { missing: string[] };
   textFit: Check & { fields: PdfGenerationResult["textFit"] };
-  qr: Check & { expectedPayload: string; decodedPayload: string | null; modules: number };
+  qr: Check & {
+    expectedPayload: string;
+    decodedPayload: string | null;
+    modules: number;
+    moduleSizeMm: number;
+    dotsAt300Dpi: number;
+  };
   staticPixelComparison: Check & {
     dpi: number;
     comparedPixels: number;
@@ -232,6 +238,8 @@ export async function validateOutput(options: {
       expectedPayload: options.vcard,
       decodedPayload,
       modules: options.pdfResult.qrModules,
+      moduleSizeMm: options.pdfResult.qrModuleSizeMm,
+      dotsAt300Dpi: options.pdfResult.qrDotsAt300Dpi,
     },
     staticPixelComparison: {
       passed: staticPassed,

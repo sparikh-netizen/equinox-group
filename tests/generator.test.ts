@@ -41,10 +41,10 @@ describe("production generator", () => {
     await expect(
       generateCard(
         {
-          firstName: "Alexanderthegreat",
-          lastName: "Verylongsurnamewithmanyletters",
-          jobTitle: "Director",
-          email: "employee@equinoxgroup.in",
+          firstName: "Alex",
+          lastName: "Smith",
+          jobTitle: "WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+          email: "a@b.co",
           mobile: "+91-90000-00000",
         },
         outputRoot,

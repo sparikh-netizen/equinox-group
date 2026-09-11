@@ -17,6 +17,8 @@ Create a production build with `npm run web:build`. GitHub Actions publishes `di
 
 The original approved artwork remains the visual source of truth. The generator preserves its static typography and positioning, removes the prior employee and QR data, then adds new employee text with embedded Manrope fonts and a new vector QR code containing the same canonical data.
 
+The QR stores a compact contact vCard containing only the employee's name, title, mobile number, and email. Static company details remain printed on the card instead of being duplicated inside the QR. This keeps the printed QR modules large enough for reliable scanning on the small card; generation stops if unusually long employee details would make them too dense.
+
 ## Generate a card
 
 Requirements:

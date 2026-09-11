@@ -31,11 +31,12 @@ export const DESIGN = {
     maximumWidth: 126,
   },
   qr: {
-    x: 195.4495697,
-    y: 26.2469234,
-    size: 47.3527546,
+    x: 192,
+    y: 23,
+    size: 54,
     marginModules: 4,
-    errorCorrectionLevel: "M" as const,
+    errorCorrectionLevel: "L" as const,
+    minimumPrintDotsAt300Dpi: 4,
   },
   validationMasks: [
     { name: "employee-details", x: 24, y: 91, width: 140, height: 50 },

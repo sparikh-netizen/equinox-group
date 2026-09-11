@@ -2,7 +2,7 @@ import fontkit from "@pdf-lib/fontkit";
 import { cmyk, PDFDocument, PDFName } from "pdf-lib";
 import { DESIGN, PAGE } from "./design.js";
 import type { Employee } from "./employee.js";
-import { createQrMatrix } from "./qr-core.js";
+import { createQrMatrix, getQrPrintMetrics } from "./qr-core.js";
 
 export interface TextFitResult {
   field: "name" | "title" | "email" | "mobile";
@@ -15,6 +15,8 @@ export interface TextFitResult {
 export interface PdfGenerationResult {
   textFit: TextFitResult[];
   qrModules: number;
+  qrModuleSizeMm: number;
+  qrDotsAt300Dpi: number;
 }
 
 export interface PdfAssets {
@@ -68,6 +70,7 @@ export async function generatePrintPdfBytes(
   }
 
   const matrix = createQrMatrix(vcard);
+  const qrMetrics = getQrPrintMetrics(matrix.modules);
   const margin = DESIGN.qr.marginModules;
   const totalModules = matrix.modules + margin * 2;
   const moduleSize = DESIGN.qr.size / totalModules;
@@ -106,6 +109,11 @@ export async function generatePrintPdfBytes(
 
   return {
     bytes: await pdf.save({ useObjectStreams: false }),
-    result: { textFit, qrModules: matrix.modules },
+    result: {
+      textFit,
+      qrModules: matrix.modules,
+      qrModuleSizeMm: qrMetrics.moduleSizeMm,
+      qrDotsAt300Dpi: qrMetrics.dotsAt300Dpi,
+    },
   };
 }

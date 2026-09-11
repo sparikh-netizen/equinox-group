@@ -1,4 +1,3 @@
-import { COMPANY } from "./design.js";
 import type { Employee } from "./employee.js";
 
 export function escapeVCardValue(value: string): string {
@@ -10,29 +9,14 @@ export function escapeVCardValue(value: string): string {
 }
 
 export function generateVCard(employee: Employee): string {
-  const address = COMPANY.address;
-  const addressValue = [
-    "",
-    "",
-    escapeVCardValue(address.street),
-    escapeVCardValue(address.locality),
-    escapeVCardValue(address.region),
-    escapeVCardValue(address.postalCode),
-    escapeVCardValue(address.country),
-  ].join(";");
-
   return [
     "BEGIN:VCARD",
     "VERSION:3.0",
     `N:${escapeVCardValue(employee.lastName)};${escapeVCardValue(employee.firstName)};;;`,
     `FN:${escapeVCardValue(employee.fullName)}`,
-    `ORG:${escapeVCardValue(COMPANY.name)}`,
     `TITLE:${escapeVCardValue(employee.jobTitle)}`,
-    `TEL;TYPE=CELL:${employee.normalizedPhone}`,
-    `TEL;TYPE=WORK:${COMPANY.officePhone}`,
-    `EMAIL;TYPE=WORK:${escapeVCardValue(employee.email)}`,
-    `ADR;TYPE=WORK:${addressValue}`,
-    `URL:${COMPANY.website}`,
+    `TEL:${employee.normalizedPhone}`,
+    `EMAIL:${escapeVCardValue(employee.email)}`,
     "END:VCARD",
     "",
   ].join("\r\n");

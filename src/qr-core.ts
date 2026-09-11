@@ -6,14 +6,39 @@ export interface QrMatrix {
   data: boolean[];
 }
 
+export interface QrPrintMetrics {
+  totalModules: number;
+  moduleSizeMm: number;
+  dotsAt300Dpi: number;
+}
+
+export function getQrPrintMetrics(matrixModules: number): QrPrintMetrics {
+  const totalModules = matrixModules + DESIGN.qr.marginModules * 2;
+  const sizeMm = (DESIGN.qr.size * 25.4) / 72;
+  const moduleSizeMm = sizeMm / totalModules;
+  return {
+    totalModules,
+    moduleSizeMm,
+    dotsAt300Dpi: (moduleSizeMm * 300) / 25.4,
+  };
+}
+
 export function createQrMatrix(payload: string): QrMatrix {
   const qr = QRCode.create(payload, {
     errorCorrectionLevel: DESIGN.qr.errorCorrectionLevel,
   });
-  return {
+  const matrix = {
     modules: qr.modules.size,
     data: Array.from(qr.modules.data, Boolean),
   };
+  const metrics = getQrPrintMetrics(matrix.modules);
+  if (metrics.dotsAt300Dpi < DESIGN.qr.minimumPrintDotsAt300Dpi) {
+    throw new Error(
+      `Employee details create a QR code that is too dense for reliable business-card printing ` +
+        `(${matrix.modules} modules per side). Shorten the name, title, or email address.`,
+    );
+  }
+  return matrix;
 }
 
 function matrixPath(matrix: QrMatrix, margin: number): string {

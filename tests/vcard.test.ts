@@ -7,7 +7,7 @@ describe("vCard", () => {
     expect(escapeVCardValue("A, B; C\\D\nE")).toBe("A\\, B\\; C\\\\D\\nE");
   });
 
-  it("contains the same canonical employee and company data as the card", () => {
+  it("contains the essential employee data without repeating static company details", () => {
     const card = generateVCard(
       normalizeEmployee({
         firstName: "John",
@@ -20,10 +20,11 @@ describe("vCard", () => {
 
     expect(card).toContain("VERSION:3.0\r\n");
     expect(card).toContain("FN:John Smith\r\n");
-    expect(card).toContain("ORG:Equinox Solutions Pvt. Ltd.\r\n");
-    expect(card).toContain("TEL;TYPE=CELL:+919000000000\r\n");
-    expect(card).toContain("EMAIL;TYPE=WORK:john.smith@equinoxgroup.in\r\n");
-    expect(card).toContain("URL:https://www.equinoxgroup.in\r\n");
+    expect(card).toContain("TITLE:Director\r\n");
+    expect(card).toContain("TEL:+919000000000\r\n");
+    expect(card).toContain("EMAIL:john.smith@equinoxgroup.in\r\n");
+    expect(card).not.toContain("ADR:");
+    expect(card).not.toContain("URL:");
     expect(card.endsWith("END:VCARD\r\n")).toBe(true);
     expect(card.replaceAll("\r\n", "")).not.toContain("\n");
   });
