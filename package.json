@@ -1,0 +1,38 @@
+{
+  "name": "equinox-business-card-generator",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Deterministic print-ready Equinox business card generator",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "ci": "npm run check && npm test && npm run build && npm run generate -- --input ./data/example-employee.json",
+    "generate": "tsx src/cli.ts",
+    "generate:compiled": "node dist/src/cli.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@pdf-lib/fontkit": "^1.1.1",
+    "commander": "^14.0.0",
+    "jsqr": "^1.4.0",
+    "libphonenumber-js": "^1.12.18",
+    "pdf-lib": "^1.17.1",
+    "pixelmatch": "^7.1.0",
+    "pngjs": "^7.0.0",
+    "qrcode": "^1.5.4",
+    "zod": "^4.1.8"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.1",
+    "@types/pngjs": "^6.0.5",
+    "@types/qrcode": "^1.5.5",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2",
+    "vitest": "^4.1.11"
+  }
+}

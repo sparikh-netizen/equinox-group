@@ -1,0 +1,9 @@
+node_modules/
+dist/
+output/*
+!output/.gitkeep
+data/private/
+template/source/
+coverage/
+.DS_Store
+*.log
