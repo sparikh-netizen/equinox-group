@@ -32,15 +32,15 @@ export const DESIGN = {
   },
   qr: {
     x: 192,
-    y: 23,
-    size: 54,
+    y: 24,
+    size: 58.32,
     marginModules: 4,
-    errorCorrectionLevel: "L" as const,
-    minimumPrintDotsAt300Dpi: 4,
+    errorCorrectionLevel: "M" as const,
+    maximumModules: 73,
   },
   validationMasks: [
     { name: "employee-details", x: 24, y: 91, width: 140, height: 50 },
-    { name: "employee-qr", x: 192, y: 23, width: 54, height: 54 },
+    { name: "employee-qr", x: 192, y: 24, width: 58.32, height: 58.32 },
   ],
 } as const;
 

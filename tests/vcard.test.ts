@@ -7,7 +7,7 @@ describe("vCard", () => {
     expect(escapeVCardValue("A, B; C\\D\nE")).toBe("A\\, B\\; C\\\\D\\nE");
   });
 
-  it("contains the essential employee data without repeating static company details", () => {
+  it("matches the complete contact structure from the approved master", () => {
     const card = generateVCard(
       normalizeEmployee({
         firstName: "John",
@@ -18,14 +18,15 @@ describe("vCard", () => {
       }),
     );
 
-    expect(card).toContain("VERSION:3.0\r\n");
-    expect(card).toContain("FN:John Smith\r\n");
-    expect(card).toContain("TITLE:Director\r\n");
-    expect(card).toContain("TEL:+919000000000\r\n");
-    expect(card).toContain("EMAIL:john.smith@equinoxgroup.in\r\n");
-    expect(card).not.toContain("ADR:");
-    expect(card).not.toContain("URL:");
-    expect(card.endsWith("END:VCARD\r\n")).toBe(true);
-    expect(card.replaceAll("\r\n", "")).not.toContain("\n");
+    expect(card).toContain("VERSION:2.1\n");
+    expect(card).toContain("N:Smith;John;;;\n");
+    expect(card).toContain("EMAIL;INTERNET:john.smith@equinoxgroup.in\n");
+    expect(card).toContain("TEL;CELL:+919000000000\n");
+    expect(card).toContain("TEL;WORK:+917969208000\n");
+    expect(card).toContain("ADR;WORK:;;101-103\\, North Tower\\, ONE42");
+    expect(card).toContain("ORG:Equinox Solutions\n");
+    expect(card).toContain("URL:https://equinoxgroup.in/\n");
+    expect(card).toContain("NOTE:Director\n");
+    expect(card.endsWith("END:VCARD\n")).toBe(true);
   });
 });

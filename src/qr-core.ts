@@ -31,11 +31,11 @@ export function createQrMatrix(payload: string): QrMatrix {
     modules: qr.modules.size,
     data: Array.from(qr.modules.data, Boolean),
   };
-  const metrics = getQrPrintMetrics(matrix.modules);
-  if (metrics.dotsAt300Dpi < DESIGN.qr.minimumPrintDotsAt300Dpi) {
+  if (matrix.modules > DESIGN.qr.maximumModules) {
     throw new Error(
-      `Employee details create a QR code that is too dense for reliable business-card printing ` +
-        `(${matrix.modules} modules per side). Shorten the name, title, or email address.`,
+      `Employee details exceed the approved master QR capacity ` +
+        `(${matrix.modules} modules per side; maximum ${DESIGN.qr.maximumModules}). ` +
+        `Shorten the name, title, or email address.`,
     );
   }
   return matrix;

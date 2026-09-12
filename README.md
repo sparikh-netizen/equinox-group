@@ -21,7 +21,7 @@ The original approved artwork remains the visual source of truth. The generator 
 
 The separate ID template follows its supplied reference exactly: Manrope ExtraBold for the employee name, Manrope Regular for all remaining text, CMYK artwork and text, and the original 54 × 85 mm geometry. Its variable fields are photo, name, title, employee ID, phone, blood group, emergency contact, and date of birth.
 
-The QR stores a compact contact vCard containing only the employee's name, title, mobile number, and email. Static company details remain printed on the card instead of being duplicated inside the QR. This keeps the printed QR modules large enough for reliable scanning on the small card; generation stops if unusually long employee details would make them too dense.
+The QR matches the approved master contact fields: employee name, email, mobile number, office number, work address, company name, website, and title as a note. It uses a compact vCard 2.1 representation with medium error correction and supports QR codes up to the original 73 × 73 module capacity, so legitimate long names and titles can be generated without sacrificing the master QR's recovery level. Inputs that would exceed that master capacity are still rejected.
 
 ## Generate a card
 

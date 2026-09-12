@@ -1,10 +1,21 @@
+import { execFile as execFileCallback } from "node:child_process";
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { promisify } from "node:util";
+import jsQR from "jsqr";
+import { PNG } from "pngjs";
 import { afterEach, describe, expect, it } from "vitest";
 import { generateCard } from "../src/generator.js";
 
 const temporaryDirectories: string[] = [];
+const execFile = promisify(execFileCallback);
+const decodeQr = jsQR as unknown as (
+  data: Uint8ClampedArray,
+  width: number,
+  height: number,
+  options: { inversionAttempts: "attemptBoth" },
+) => { data: string } | null;
 
 afterEach(async () => {
   await Promise.all(temporaryDirectories.splice(0).map((directory) => rm(directory, { recursive: true })));
@@ -32,7 +43,7 @@ describe("production generator", () => {
     const pdf = await readFile(result.files.pdf);
     expect(pdf).not.toHaveLength(0);
     expect(pdf.toString("latin1")).not.toMatch(/xmpmeta|AIPDFPrivateData|\/PieceInfo/iu);
-    await expect(readFile(result.files.vcf, "utf8")).resolves.toContain("FN:John Smith");
+    await expect(readFile(result.files.vcf, "utf8")).resolves.toContain("N:Smith;John;;;");
   }, 30_000);
 
   it("fails before writing a card when text cannot fit the approved layout", async () => {
@@ -51,4 +62,25 @@ describe("production generator", () => {
       ),
     ).rejects.toThrow(/too long/iu);
   });
+
+  it("decodes the 73-module long-name and long-title PDF at 300 DPI", async () => {
+    const outputRoot = await mkdtemp(path.join(os.tmpdir(), "equinox-card-test-"));
+    temporaryDirectories.push(outputRoot);
+    const result = await generateCard(
+      {
+        firstName: "Mohommed Azharuddin",
+        lastName: "Shaikh",
+        jobTitle: "Executive - Employee Relations & Admin",
+        email: "mohommed.shaikh@equinoxgroup.in",
+        mobile: "+91-90000-00000",
+      },
+      outputRoot,
+    );
+    expect(result.report.qr.modules).toBe(73);
+    const renderPrefix = path.join(outputRoot, "print-300dpi");
+    await execFile("pdftoppm", ["-png", "-r", "300", "-singlefile", result.files.pdf, renderPrefix]);
+    const png = PNG.sync.read(await readFile(`${renderPrefix}.png`));
+    const decoded = decodeQr(new Uint8ClampedArray(png.data), png.width, png.height, { inversionAttempts: "attemptBoth" });
+    expect(decoded?.data).toBe(result.report.qr.expectedPayload);
+  }, 30_000);
 });

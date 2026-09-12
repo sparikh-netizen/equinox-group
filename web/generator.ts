@@ -224,7 +224,7 @@ export async function generateBrowserArtifacts(input: EmployeeInput): Promise<Br
       modules: pdf.result.qrModules,
       moduleSizeMm: pdf.result.qrModuleSizeMm,
       dotsAt300Dpi: pdf.result.qrDotsAt300Dpi,
-      source: "compact contact vCard",
+      source: "complete contact vCard matching the approved master fields",
     },
     assetIntegrity: { passed: true },
   };

@@ -21,7 +21,7 @@ describe("QR generation", () => {
     expect(svg).not.toContain("<image");
   });
 
-  it("keeps the employee contact QR sparse enough for business-card printing", () => {
+  it("keeps the complete employee contact QR within the approved 73-module master capacity", () => {
     const payload = generateVCard(
       normalizeEmployee({
         firstName: "John",
@@ -34,11 +34,31 @@ describe("QR generation", () => {
     const matrix = createQrMatrix(payload);
     const metrics = getQrPrintMetrics(matrix.modules);
 
-    expect(matrix.modules).toBe(41);
-    expect(metrics.dotsAt300Dpi).toBeGreaterThanOrEqual(4);
+    expect(matrix.modules).toBeLessThanOrEqual(73);
+    expect(metrics.dotsAt300Dpi).toBeGreaterThan(0);
   });
 
-  it("rejects payloads that would make the printed modules too small", () => {
-    expect(() => createQrMatrix(`BEGIN:VCARD\r\nNOTE:${"x".repeat(500)}\r\nEND:VCARD\r\n`)).toThrow(/too dense/iu);
+  it("accepts the reported long names and titles", () => {
+    const examples = [
+      normalizeEmployee({
+        firstName: "John",
+        lastName: "Smith",
+        jobTitle: "Sr. Manager - Sales (North & East India)",
+        email: "john.smith@equinoxgroup.in",
+        mobile: "+91-90000-00000",
+      }),
+      normalizeEmployee({
+        firstName: "Mohommed Azharuddin",
+        lastName: "Shaikh",
+        jobTitle: "Executive - Employee Relations & Admin",
+        email: "mohommed.shaikh@equinoxgroup.in",
+        mobile: "+91-90000-00000",
+      }),
+    ];
+    expect(examples.map((employee) => createQrMatrix(generateVCard(employee)).modules)).toEqual([73, 73]);
+  });
+
+  it("rejects payloads beyond the approved master capacity", () => {
+    expect(() => createQrMatrix(`BEGIN:VCARD\r\nNOTE:${"x".repeat(500)}\r\nEND:VCARD\r\n`)).toThrow(/master QR capacity/iu);
   });
 });
